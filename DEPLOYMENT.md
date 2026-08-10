@@ -7,15 +7,15 @@
 
 | Mục | Nội dung |
 |-----|----------|
-| Họ và tên | [HỌ_TÊN] |
-| Mã học viên | [MÃ_HỌC_VIÊN] |
-| Repo | [LINK_GITHUB_REPO] |
+| Họ và tên | [Nguyễn Trường An] |
+| Mã học viên | [2A202601151] |
+| Repo | [https://github.com/nguyentruongann/K3-Day12-2A202601151-nguyentruongan.git] |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | [PUBLIC_URL_RAILWAY_HTTPS] |
+| Public URL | [https://day12-agent-production-38c9.up.railway.app] |
 | Platform | Railway |
 | Ngày deploy | 10/08/2026 |
 

@@ -1,101 +1,83 @@
 # Thông Tin Deploy — Checkpoint 5
 
-> Điền file này sau khi deploy xong. `pytest tests/test_cp5.py` đọc file này
-> để tìm địa chỉ service của bạn và gọi thử.
->
-> **Chỉ ghi TÊN biến môi trường, tuyệt đối không dán giá trị API key vào đây.**
-> Repo này công khai — dán khóa vào là mất khóa.
+> Hoàn thiện các giá trị trong dấu `[...]` sau khi Railway deploy thành công.
+> **Chỉ ghi tên/nguồn biến môi trường; tuyệt đối không ghi giá trị thật của `AGENT_API_KEY`.**
 
 ## Thông Tin Học Viên
 
 | Mục | Nội dung |
 |-----|----------|
-| Họ và tên | (điền họ tên) |
-| Mã học viên | (điền mã học viên) |
-| Repo | (điền link repo DAY12-...) |
+| Họ và tên | [HỌ_TÊN] |
+| Mã học viên | [MÃ_HỌC_VIÊN] |
+| Repo | [LINK_GITHUB_REPO] |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://TODO-thay-bang-url-that.up.railway.app |
-| Platform | Railway / Render / Cloud Run — (điền platform bạn dùng) |
-| Ngày deploy | (điền ngày) |
+| Public URL | [PUBLIC_URL_RAILWAY_HTTPS] |
+| Platform | Railway |
+| Ngày deploy | 10/08/2026 |
 
-## Biến Môi Trường Đã Set Trên Cloud
+## Biến Môi Trường Đã Set Trên Railway
 
-Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
+| Biến | Đã set | Nguồn / ghi chú |
+|------|--------|------------------|
+| `PORT` | ✅ | Railway tự inject; không hardcode |
+| `AGENT_API_KEY` | ✅ | Railway Variables; secret không nằm trong repo |
+| `REDIS_URL` | ✅ | Reference variable: `${{Redis.REDIS_URL}}` |
+| `RATE_LIMIT_PER_MINUTE` | ✅ | Railway Variables, giá trị cấu hình theo bài |
+| `MONTHLY_BUDGET_USD` | ✅ | Railway Variables, giá trị cấu hình theo bài |
+| `LOG_LEVEL` | ✅ | Railway Variables |
 
-| Biến | Đã set | Ghi chú |
-|------|--------|---------|
-| `PORT` | ✅ | platform tự gán |
-| `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | (điền: Redis add-on của platform / Upstash / ...) |
-| `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
-| `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
-| `LOG_LEVEL` | ✅ | INFO |
+## Kiểm Tra Deployment
 
-## Lệnh Kiểm Tra
-
-Thay `<URL>` bằng Public URL ở trên:
+Thay `<URL>` bằng Public URL thật và `<API_KEY>` bằng secret đang lưu cục bộ của bạn.
+Không commit API key vào repository.
 
 ```bash
-# 1. Liveness — mong đợi 200 {"status":"ok"}
+# 1. Liveness — mong đợi HTTP 200 và status=ok
 curl -i <URL>/health
 
-# 2. Readiness — mong đợi 200 {"status":"ready"} (đã nối được Redis)
+# 2. Readiness — mong đợi HTTP 200 khi Redis kết nối thành công
 curl -i <URL>/ready
 
-# 3. Không có API key — mong đợi 401
+# 3. Thiếu API key — mong đợi HTTP 401
 curl -i -X POST <URL>/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"Hello"}'
 
-# 4. Có API key — mong đợi 200 kèm câu trả lời
+# 4. Có API key — mong đợi HTTP 200
 curl -i -X POST <URL>/ask \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: $AGENT_API_KEY" \
+  -H "X-API-Key: <API_KEY>" \
   -H "X-User-Id: sv-test" \
   -d '{"question":"Deploy là gì?"}'
-
-# 5. Rate limit — gọi 15 lần, những lần cuối phải trả 429
-for i in $(seq 1 15); do
-  curl -s -o /dev/null -w "%{http_code} " -X POST <URL>/ask \
-    -H "Content-Type: application/json" \
-    -H "X-API-Key: $AGENT_API_KEY" \
-    -H "X-User-Id: sv-test" \
-    -d '{"question":"test"}'
-done; echo
 ```
 
 ## Kết Quả Chạy Thật
 
-Dán output của các lệnh trên vào đây:
-
-```
-(điền output)
+```text
+[PASTE_OUTPUT_HEALTH_READY_ASK_HERE]
 ```
 
 ## Ảnh Chụp Màn Hình
 
-Đặt ảnh trong thư mục `screenshots/`:
+- `screenshots/dashboard.png` — Railway project có service app và Redis.
+- `screenshots/health.png` — kết quả gọi Public URL `/health` trả HTTP 200.
 
-- `screenshots/dashboard.png` — trang quản lý service trên platform
-- `screenshots/health.png` — kết quả gọi `/health` từ trình duyệt hoặc curl
+## Ghi Chú Kiến Trúc
 
----
-
-## Nếu Dùng Phương Án Dự Phòng
-
-Không đăng ký được tài khoản cloud? Vẫn nộp được bài, nhưng CP5 tối đa 60% điểm:
-
-1. Đặt `LOCAL_FALLBACK=true` trong `.env`
-2. Chạy `docker compose up -d` rồi kiểm tra `docker compose ps`
-3. Chụp màn hình vào `screenshots/`
-4. Chạy `pytest tests/test_cp5.py -v` — bộ test sẽ tự chuyển sang kiểm tra
-   `http://localhost:8000`
-5. Ghi rõ lý do không deploy được vào phần dưới đây:
-
-```
-(điền lý do nếu dùng phương án dự phòng, ngược lại xóa mục này)
+```text
+Internet
+   |
+   v
+Railway public domain
+   |
+   v
+day12-agent (Dockerfile / FastAPI)
+   |
+   | REDIS_URL = ${{Redis.REDIS_URL}}
+   v
+Redis service (private network trong cùng Railway project)
 ```
